@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>تفاصيل اللعبة - Joseph Games</title>
+  <link rel="stylesheet" href="styles.css">
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    .game-page { padding: 20px 0 60px; }
+    .game-top {
+      display: flex; flex-direction: column; gap: 18px;
+      margin-bottom: 24px;
+    }
+    .game-cover-big {
+      width: 100%; max-height: 280px; border-radius: 18px;
+      object-fit: cover; background: #1a1f2e;
+      border: 1px solid rgba(255,255,255,.08);
+    }
+    .game-cover-placeholder {
+      width: 100%; height: 220px; border-radius: 18px;
+      background: linear-gradient(135deg,#1a1f2e,#12161f);
+      display:flex; align-items:center; justify-content:center;
+      font-size: 5rem;
+    }
+    .game-title-block h1 {
+      font-size: 1.7rem; margin-bottom: 10px; line-height: 1.3;
+    }
+    .meta-row {
+      display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px;
+    }
+    .download-main {
+      display: flex; flex-wrap: wrap; gap: 10px; margin-top: 12px;
+    }
+    .btn-dl {
+      flex: 1; min-width: 140px; text-align: center;
+      padding: 14px 18px; border-radius: 12px; font-weight: 700;
+      text-decoration: none; color: #fff; font-size: .95rem;
+    }
+    .btn-mf { background: #2563eb; }
+    .btn-mega { background: #d9262c; }
+    .btn-tr { background: #7c5cff; }
+    .size-pill {
+      display: inline-block; background: rgba(124,92,255,.15);
+      color: #a78bfa; padding: 6px 14px; border-radius: 999px;
+      font-weight: 700; font-size: .85rem; margin-bottom: 8px;
+    }
+
+    /* Tabs */
+    .tabs-bar {
+      display: flex; gap: 6px; overflow-x: auto; padding-bottom: 8px;
+      margin-bottom: 18px; scrollbar-width: none;
+    }
+    .tabs-bar::-webkit-scrollbar { display: none; }
+    .tab-btn {
+      flex-shrink: 0; background: var(--card);
+      border: 1px solid rgba(255,255,255,.08);
+      color: var(--muted); padding: 10px 16px; border-radius: 999px;
+      font-family: inherit; font-weight: 600; font-size: .9rem;
+      cursor: pointer; transition: .2s;
+    }
+    .tab-btn.active {
+      background: var(--primary); color: #fff; border-color: transparent;
+    }
+    .tab-pane { display: none; }
+    .tab-pane.active { display: block; }
+
+    /* Info cards numbered */
+    .info-list { display: flex; flex-direction: column; gap: 12px; }
+    .info-item {
+      background: var(--card); border-radius: 14px; padding: 16px;
+      border: 1px solid rgba(255,255,255,.05); position: relative;
+    }
+    .info-item .num {
+      position: absolute; top: 14px; left: 14px;
+      background: rgba(124,92,255,.2); color: #a78bfa;
+      width: 28px; height: 28px; border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 800; font-size: .8rem;
+    }
+    .info-item p { padding-left: 40px; color: var(--muted); font-size: .95rem; }
+
+    /* Gallery */
+    .gallery-grid {
+      display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px;
+    }
+    .gallery-grid img {
+      width: 100%; aspect-ratio: 16/10; object-fit: cover;
+      border-radius: 12px; cursor: pointer;
+      border: 1px solid rgba(255,255,255,.08);
+      transition: .2s;
+    }
+    .gallery-grid img:hover { transform: scale(1.02); }
+    .gallery-grid .main-shot {
+      grid-column: 1 / -1; aspect-ratio: 16/9;
+    }
+
+    /* Video */
+    .video-wrap {
+      position: relative; border-radius: 16px; overflow: hidden;
+      background: #000; margin-bottom: 18px;
+    }
+    .video-wrap iframe, .video-wrap video {
+      width: 100%; aspect-ratio: 16/9; border: none; display: block;
+    }
+    .video-link-box {
+      background: var(--card); border-radius: 14px; padding: 16px;
+      text-align: center; border: 1px solid rgba(255,255,255,.06);
+    }
+    .video-link-box a {
+      color: var(--primary2); font-weight: 700; text-decoration: none;
+    }
+
+    /* Requirements */
+    .req-block {
+      background: var(--card); border-radius: 14px; padding: 18px;
+      margin-bottom: 14px; border: 1px solid rgba(255,255,255,.05);
+    }
+    .req-block h3 {
+      margin-bottom: 12px; font-size: 1.05rem;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .req-block pre {
+      white-space: pre-wrap; color: var(--muted);
+      font-family: inherit; font-size: .92rem; line-height: 1.8;
+    }
+
+    /* Details table */
+    .details-table {
+      background: var(--card); border-radius: 14px; overflow: hidden;
+      border: 1px solid rgba(255,255,255,.05);
+    }
+    .detail-row {
+      display: flex; justify-content: space-between; gap: 12px;
+      padding: 14px 16px; border-bottom: 1px solid rgba(255,255,255,.05);
+      font-size: .92rem;
+    }
+    .detail-row:last-child { border-bottom: none; }
+    .detail-row span:first-child { color: var(--muted); }
+    .detail-row span:last-child { font-weight: 600; text-align: left; }
+
+    /* Lightbox */
+    .lightbox {
+      display: none; position: fixed; inset: 0; z-index: 9999;
+      background: rgba(0,0,0,.92); align-items: center; justify-content: center;
+    }
+    .lightbox.open { display: flex; }
+    .lightbox img {
+      max-width: 92%; max-height: 80vh; border-radius: 12px;
+      object-fit: contain;
+    }
+    .lb-close, .lb-prev, .lb-next {
+      position: absolute; background: rgba(255,255,255,.12);
+      border: none; color: #fff; width: 42px; height: 42px;
+      border-radius: 50%; font-size: 1.2rem; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .lb-close { top: 18px; left: 18px; }
+    .lb-prev { right: 16px; top: 50%; transform: translateY(-50%); }
+    .lb-next { left: 16px; top: 50%; transform: translateY(-50%); }
+    .lb-counter {
+      position: absolute; bottom: 24px; left: 50%; transform: translateX(-50%);
+      background: rgba(0,0,0,.6); color: #fff; padding: 6px 16px;
+      border-radius: 999px; font-weight: 700; font-size: .9rem;
+    }
+
+    .back-link {
+      display: inline-flex; align-items: center; gap: 6px;
+      color: var(--muted); text-decoration: none; margin-bottom: 16px;
+      font-weight: 600; font-size: .9rem;
+    }
+    .back-link:hover { color: var(--text); }
+
+    @media (min-width: 700px) {
+      .game-top { flex-direction: row; align-items: flex-start; }
+      .game-cover-big, .game-cover-placeholder {
+        width: 280px; height: 280px; max-height: none; flex-shrink: 0;
+      }
+      .gallery-grid { grid-template-columns: repeat(3, 1fr); }
+    }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <div class="container header-inner">
+      <a href="index.html" class="logo">
+        <span class="logo-icon">🎮</span>
+        <span>Joseph <b>Games</b></span>
+      </a>
+      <nav class="nav">
+        <a href="index.html" class="nav-link">الرئيسية</a>
+        <a href="index.html#games" class="nav-link">كل الألعاب</a>
+        <a href="admin.html" class="nav-link">لوحة التحكم</a>
+      </nav>
+      <button class="menu-btn" id="menuBtn">☰</button>
+    </div>
+  </header>
+
+  <main class="game-page">
+    <div class="container" id="gameContent">
+      <a href="index.html" class="back-link">← رجوع للألعاب</a>
+      <div id="gameBody">جاري التحميل...</div>
+    </div>
+  </main>
+
+  <!-- Lightbox -->
+  <div class="lightbox" id="lightbox">
+    <button class="lb-close" id="lbClose">✕</button>
+    <button class="lb-prev" id="lbPrev">›</button>
+    <button class="lb-next" id="lbNext">‹</button>
+    <img id="lbImg" src="" alt="screenshot">
+    <div class="lb-counter" id="lbCounter">1 / 1</div>
+  </div>
+
+  <footer class="footer">
+    <div class="container"><p>Joseph Games © 2026</p></div>
+  </footer>
+
+  <script src="script.js"></script>
+  <script>
+    const categoryLabels = { weak: "خفيفة", medium: "متوسطة", strong: "قوية" };
+    const genreLabels = {
+      action: "أكشن", horror: "رعب", adventure: "مغامرات", racing: "سباق",
+      sports: "رياضة", strategy: "استراتيجية", rpg: "أدوار", shooter: "شوتر",
+      openworld: "عالم مفتوح", other: "أخرى"
+    };
+
+    let galleryImages = [];
+    let currentImg = 0;
+
+    document.addEventListener("DOMContentLoaded", () => {
+      const params = new URLSearchParams(window.location.search);
+      const id = params.get("id");
+      if (!id) {
+        document.getElementById("gameBody").innerHTML = "<p>اللعبة غير موجودة</p>";
+        return;
+      }
+
+      const games = JSON.parse(localStorage.getItem("josephGames") || "[]");
+      const game = games.find(g => String(g.id) === String(id));
+      if (!game) {
+        document.getElementById("gameBody").innerHTML = "<p>اللعبة غير موجودة. تأكد إنك أضفتها من لوحة التحكم على نفس المتصفح.</p>";
+        return;
+      }
+
+      document.title = game.title + " - Joseph Games";
+
+      // Parse screenshots
+      galleryImages = (game.screenshots || "")
+        .split("\n")
+        .map(s => s.trim())
+        .filter(Boolean);
+
+      const coverHtml = game.cover
+        ? `<img class="game-cover-big" src="${game.cover}" alt="${escapeHtml(game.title)}">`
+        : `<div class="game-cover-placeholder">🎮</div>`;
+
+      let dlBtns = "";
+      if (game.mediafire) dlBtns += `<a class="btn-dl btn-mf" href="${game.mediafire}" target="_blank" rel="noopener">ميديا فاير</a>`;
+      if (game.mega) dlBtns += `<a class="btn-dl btn-mega" href="${game.mega}" target="_blank" rel="noopener">ميجا</a>`;
+      if (game.torrent) dlBtns += `<a class="btn-dl btn-tr" href="${game.torrent}" target="_blank" rel="noopener">تورنت</a>`;
+      if (!dlBtns) dlBtns = "<p style='color:var(--muted)'>لا توجد روابط تحميل حالياً</p>";
+
+      // Overview text as numbered cards if multiple paragraphs
+      const descParts = (game.description || "لا يوجد وصف.")
+        .split(/\n+/)
+        .map(p => p.trim())
+        .filter(Boolean);
+
+      const infoHtml = descParts.map((p, i) => `
+        <div class="info-item">
+          <span class="num">${String(i + 1).padStart(2, "0")}</span>
+          <p>${escapeHtml(p)}</p>
+        </div>
+      `).join("");
+
+      // Gallery
+      let galleryHtml = "";
+      if (galleryImages.length) {
+        galleryHtml = `<div class="gallery-grid">
+          ${galleryImages.map((src, i) =>
+            `<img src="${src}" class="${i === 0 ? "main-shot" : ""}" data-idx="${i}" alt="صورة ${i + 1}" loading="lazy">`
+          ).join("")}
+        </div>`;
+      } else {
+        galleryHtml = "<p style='color:var(--muted)'>لا توجد صور حالياً</p>";
+      }
+
+      // Video
+      let videoHtml = "";
+      if (game.video) {
+        const yt = extractYoutubeId(game.video);
+        if (yt) {
+          videoHtml = `<div class="video-wrap"><iframe src="https://www.youtube.com/embed/${yt}" allowfullscreen allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"></iframe></div>`;
+        } else {
+          videoHtml = `<div class="video-link-box"><a href="${game.video}" target="_blank" rel="noopener">▶ مشاهدة فيديو تجربة اللعبة</a></div>`;
+        }
+      } else {
+        videoHtml = "<p style='color:var(--muted)'>لا يوجد فيديو حالياً</p>";
+      }
+
+      document.getElementById("gameBody").innerHTML = `
+        <div class="game-top">
+          ${coverHtml}
+          <div class="game-title-block">
+            <h1>${escapeHtml(game.title)}</h1>
+            <div class="meta-row">
+              <span class="badge badge-${game.category}">${categoryLabels[game.category] || ""}</span>
+              ${game.genre ? `<span class="badge" style="background:rgba(0,212,255,.12);color:#00d4ff">${genreLabels[game.genre] || game.genre}</span>` : ""}
+            </div>
+            ${game.size ? `<div class="size-pill">الحجم: ${escapeHtml(game.size)}</div>` : ""}
+            <div class="download-main">${dlBtns}</div>
+          </div>
+        </div>
+
+        <div class="tabs-bar">
+          <button class="tab-btn active" data-tab="overview">نظرة عامة</button>
+          <button class="tab-btn" data-tab="media">الصور والفيديو</button>
+          <button class="tab-btn" data-tab="requirements">متطلبات التشغيل</button>
+          <button class="tab-btn" data-tab="details">تفاصيل اللعبة</button>
+        </div>
+
+        <div class="tab-pane active" id="tab-overview">
+          <h2 style="margin-bottom:14px;font-size:1.15rem">معلومات عن ${escapeHtml(game.title)}</h2>
+          <div class="info-list">${infoHtml}</div>
+        </div>
+
+        <div class="tab-pane" id="tab-media">
+          <h2 style="margin-bottom:14px;font-size:1.15rem">فيديو تجربة اللعبة</h2>
+          ${videoHtml}
+          <h2 style="margin:22px 0 14px;font-size:1.15rem">صور اللعبة (${galleryImages.length})</h2>
+          ${galleryHtml}
+        </div>
+
+        <div class="tab-pane" id="tab-requirements">
+          <div class="req-block">
+            <h3>01 — الحد الأدنى</h3>
+            <pre>${escapeHtml(game.minReq || "غير محدد")}</pre>
+          </div>
+          <div class="req-block">
+            <h3>02 — المواصفات الموصى بها</h3>
+            <pre>${escapeHtml(game.recReq || "غير محدد")}</pre>
+          </div>
+        </div>
+
+        <div class="tab-pane" id="tab-details">
+          <div class="details-table">
+            <div class="detail-row"><span>اسم اللعبة</span><span>${escapeHtml(game.title)}</span></div>
+            <div class="detail-row"><span>فئة الحجم</span><span>${categoryLabels[game.category] || "—"}</span></div>
+            <div class="detail-row"><span>نوع اللعبة</span><span>${genreLabels[game.genre] || "—"}</span></div>
+            <div class="detail-row"><span>الحجم</span><span>${escapeHtml(game.size || "—")}</span></div>
+            <div class="detail-row"><span>طرق التحميل</span><span>${[game.mediafire && "ميديا فاير", game.mega && "ميجا", game.torrent && "تورنت"].filter(Boolean).join("، ") || "—"}</span></div>
+            <div class="detail-row"><span>تاريخ الإضافة</span><span>${game.id ? new Date(Number(game.id)).toLocaleDateString("ar-EG") : "—"}</span></div>
+          </div>
+        </div>
+      `;
+
+      // Tabs
+      document.querySelectorAll(".tab-btn").forEach(btn => {
+        btn.addEventListener("click", () => {
+          document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
+          document.querySelectorAll(".tab-pane").forEach(p => p.classList.remove("active"));
+          btn.classList.add("active");
+          document.getElementById("tab-" + btn.dataset.tab).classList.add("active");
+        });
+      });
+
+      // Gallery click → lightbox
+      document.querySelectorAll(".gallery-grid img").forEach(img => {
+        img.addEventListener("click", () => openLightbox(Number(img.dataset.idx)));
+      });
+    });
+
+    function extractYoutubeId(url) {
+      if (!url) return null;
+      const m = url.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|shorts\/))([a-zA-Z0-9_-]{6,})/);
+      return m ? m[1] : null;
+    }
+
+    function openLightbox(idx) {
+      if (!galleryImages.length) return;
+      currentImg = idx;
+      document.getElementById("lbImg").src = galleryImages[currentImg];
+      document.getElementById("lbCounter").textContent = `${currentImg + 1} / ${galleryImages.length}`;
+      document.getElementById("lightbox").classList.add("open");
+    }
+    function closeLightbox() {
+      document.getElementById("lightbox").classList.remove("open");
+    }
+    function navLightbox(dir) {
+      currentImg = (currentImg + dir + galleryImages.length) % galleryImages.length;
+      document.getElementById("lbImg").src = galleryImages[currentImg];
+      document.getElementById("lbCounter").textContent = `${currentImg + 1} / ${galleryImages.length}`;
+    }
+
+    document.getElementById("lbClose").onclick = closeLightbox;
+    document.getElementById("lbPrev").onclick = () => navLightbox(-1);
+    document.getElementById("lbNext").onclick = () => navLightbox(1);
+    document.getElementById("lightbox").addEventListener("click", e => {
+      if (e.target.id === "lightbox") closeLightbox();
+    });
+  </script>
+</body>
+</html>

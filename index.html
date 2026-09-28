@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Joseph Games - تحميل ألعاب الكمبيوتر</title>
+  <meta name="description" content="Joseph Games - موقع تحميل ألعاب الكمبيوتر الأصلية">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+  <header class="header">
+    <div class="container header-inner">
+      <a href="index.html" class="logo">
+        <span class="logo-icon">🎮</span>
+        <span>Joseph <b>Games</b></span>
+      </a>
+      <nav class="nav" id="mainNav">
+        <a href="index.html" class="nav-link active">الرئيسية</a>
+        <a href="#categories" class="nav-link">التصنيفات</a>
+        <a href="#games" class="nav-link">كل الألعاب</a>
+        <a href="admin.html" class="nav-link">لوحة التحكم</a>
+      </nav>
+      <button class="menu-btn" id="menuBtn">☰</button>
+    </div>
+  </header>
+
+  <section class="hero">
+    <div class="container">
+      <h1>Joseph Games</h1>
+      <p>ألعاب أصلية • تحميل مباشر من ميديا فاير وتورنت</p>
+      <div class="search-box">
+        <input type="text" id="searchInput" placeholder="ابحث عن لعبة...">
+        <button id="searchBtn">بحث</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Size Categories -->
+  <section class="categories" id="categories">
+    <div class="container">
+      <h2 class="section-title">تصنيفات حسب حجم اللعبة</h2>
+      <div class="cat-grid">
+        <div class="cat-card" data-cat="weak">
+          <div class="cat-icon">💻</div>
+          <h3>ألعاب خفيفة</h3>
+          <p>من 150 ميجا حتى أقل من 5 جيجا</p>
+        </div>
+        <div class="cat-card" data-cat="medium">
+          <div class="cat-icon">🖥️</div>
+          <h3>ألعاب متوسطة</h3>
+          <p>من 5 جيجا حتى 10 جيجا</p>
+        </div>
+        <div class="cat-card" data-cat="strong">
+          <div class="cat-icon">🚀</div>
+          <h3>ألعاب قوية</h3>
+          <p>أكبر من 10 جيجا</p>
+        </div>
+        <div class="cat-card" data-cat="all">
+          <div class="cat-icon">🎯</div>
+          <h3>كل الألعاب</h3>
+          <p>عرض جميع الألعاب</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Genre Categories as cards -->
+  <section class="genres" id="genres">
+    <div class="container">
+      <h2 class="section-title">أنواع الألعاب</h2>
+      <div class="cat-grid">
+        <div class="cat-card" data-genre="action">
+          <div class="cat-icon">⚔️</div>
+          <h3>أكشن</h3>
+          <p>ألعاب الحركة والإثارة</p>
+        </div>
+        <div class="cat-card" data-genre="horror">
+          <div class="cat-icon">👻</div>
+          <h3>رعب</h3>
+          <p>ألعاب الرعب والتشويق</p>
+        </div>
+        <div class="cat-card" data-genre="adventure">
+          <div class="cat-icon">🗺️</div>
+          <h3>مغامرات</h3>
+          <p>استكشاف وقصص مشوقة</p>
+        </div>
+        <div class="cat-card" data-genre="shooter">
+          <div class="cat-icon">🔫</div>
+          <h3>شوتر</h3>
+          <p>ألعاب إطلاق النار</p>
+        </div>
+        <div class="cat-card" data-genre="racing">
+          <div class="cat-icon">🏎️</div>
+          <h3>سباق</h3>
+          <p>سيارات ودراجات</p>
+        </div>
+        <div class="cat-card" data-genre="sports">
+          <div class="cat-icon">⚽</div>
+          <h3>رياضة</h3>
+          <p>كرة قدم وألعاب رياضية</p>
+        </div>
+        <div class="cat-card" data-genre="strategy">
+          <div class="cat-icon">♟️</div>
+          <h3>استراتيجية</h3>
+          <p>تخطيط وتفكير</p>
+        </div>
+        <div class="cat-card" data-genre="rpg">
+          <div class="cat-icon">🛡️</div>
+          <h3>أدوار</h3>
+          <p>تقمص شخصيات وعوالم</p>
+        </div>
+        <div class="cat-card" data-genre="openworld">
+          <div class="cat-icon">🌍</div>
+          <h3>عالم مفتوح</h3>
+          <p>حرية استكشاف كاملة</p>
+        </div>
+        <div class="cat-card" data-genre="other">
+          <div class="cat-icon">🎯</div>
+          <h3>أخرى</h3>
+          <p>أنواع متنوعة</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="games-section" id="games">
+    <div class="container">
+      <div class="section-head">
+        <h2 class="section-title">أحدث الألعاب</h2>
+        <div class="filters">
+          <button class="filter-btn active" data-filter="all">الكل</button>
+          <button class="filter-btn" data-filter="weak">خفيفة</button>
+          <button class="filter-btn" data-filter="medium">متوسطة</button>
+          <button class="filter-btn" data-filter="strong">قوية</button>
+        </div>
+      </div>
+      <div class="games-grid" id="gamesGrid"></div>
+      <div class="empty" id="emptyState" style="display:none;">
+        <p>لا توجد ألعاب حالياً. أضف ألعابك من لوحة التحكم.</p>
+      </div>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div class="container">
+      <p>Joseph Games © 2026 — جميع الحقوق محفوظة</p>
+    </div>
+  </footer>
+
+  <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore-compat.js"></script>
+  <script src="firebase-config.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>

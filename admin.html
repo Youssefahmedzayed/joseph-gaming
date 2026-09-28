@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>لوحة التحكم - Joseph Games</title>
+  <link rel="stylesheet" href="styles.css">
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+  <header class="header">
+    <div class="container header-inner">
+      <a href="index.html" class="logo">
+        <span class="logo-icon">🎮</span>
+        <span>Joseph <b>Games</b></span>
+      </a>
+      <nav class="nav">
+        <a href="index.html" class="nav-link">الرئيسية</a>
+        <a href="admin.html" class="nav-link active">لوحة التحكم</a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="admin-wrap">
+    <div class="admin-card" id="loginBox">
+      <h1>لوحة التحكم</h1>
+      <p class="subtitle">أدخل كلمة المرور للمتابعة</p>
+      <div class="form-group">
+        <input type="password" id="adminPassword" placeholder="كلمة المرور" autocomplete="current-password">
+      </div>
+      <button class="btn-primary" id="loginBtn">دخول</button>
+    </div>
+
+    <div id="adminPanel" style="display:none;">
+      <div class="admin-card">
+        <h1>إضافة لعبة جديدة</h1>
+        <p class="subtitle">الألعاب هتظهر لكل الزوار على أي جهاز</p>
+
+        <div class="form-group">
+          <label>اسم اللعبة *</label>
+          <input type="text" id="gameTitle" placeholder="مثال: Five Nights at Freddy's" required>
+        </div>
+
+        <div class="form-group">
+          <label>الوصف</label>
+          <textarea id="gameDesc" placeholder="اكتب وصف اللعبة هنا..."></textarea>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>التصنيف (الحجم) *</label>
+            <select id="gameCategory">
+              <option value="weak">خفيفة (أقل من 5 جيجا)</option>
+              <option value="medium">متوسطة (5 - 10 جيجا)</option>
+              <option value="strong">قوية (أكثر من 10 جيجا)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>الحجم</label>
+            <input type="text" id="gameSize" placeholder="مثال: 4.1 جيجا">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>نوع اللعبة</label>
+          <select id="gameGenre">
+            <option value="action">أكشن</option>
+            <option value="horror">رعب</option>
+            <option value="adventure">مغامرات</option>
+            <option value="racing">سباق</option>
+            <option value="sports">رياضة</option>
+            <option value="strategy">استراتيجية</option>
+            <option value="rpg">أدوار</option>
+            <option value="shooter">شوتر</option>
+            <option value="openworld">عالم مفتوح</option>
+            <option value="other">أخرى</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>صورة الغلاف (رابط الصورة) *</label>
+          <input type="url" id="gameCover" placeholder="https://example.com/cover.jpg">
+        </div>
+
+        <div class="form-group">
+          <label>رابط ميديا فاير</label>
+          <input type="url" id="gameMediafire" placeholder="https://www.mediafire.com/...">
+        </div>
+
+        <div class="form-group">
+          <label>رابط ميجا (Mega)</label>
+          <input type="url" id="gameMega" placeholder="https://mega.nz/...">
+        </div>
+
+        <div class="form-group">
+          <label>رابط تورنت (اختياري)</label>
+          <input type="url" id="gameTorrent" placeholder="رابط التورنت لو موجود">
+        </div>
+
+        <div class="form-group">
+          <label>فيديو تجربة اللعبة (يوتيوب أو رابط)</label>
+          <input type="url" id="gameVideo" placeholder="https://www.youtube.com/watch?v=...">
+        </div>
+
+        <div class="form-group">
+          <label>صور اللعبة (كل رابط صورة في سطر — يفضل 4 إلى 6 صور)</label>
+          <textarea id="gameScreenshots" placeholder="https://example.com/image1.jpg&#10;https://example.com/image2.jpg"></textarea>
+        </div>
+
+        <div class="form-group">
+          <label>الحد الأدنى للمتطلبات</label>
+          <textarea id="gameMinReq" placeholder="نظام التشغيل: ويندوز 10&#10;المعالج: ...&#10;الذاكرة: 8 جيجا"></textarea>
+        </div>
+
+        <div class="form-group">
+          <label>المواصفات الموصى بها</label>
+          <textarea id="gameRecReq" placeholder="نظام التشغيل: ويندوز 11&#10;المعالج: ...&#10;الذاكرة: 16 جيجا"></textarea>
+        </div>
+
+        <button class="btn-primary" id="addGameBtn">إضافة اللعبة</button>
+      </div>
+
+      <div class="admin-list">
+        <h2 style="margin-bottom:14px;">الألعاب المضافة</h2>
+        <div id="gamesList"><p style="color:var(--muted)">جاري التحميل...</p></div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore-compat.js"></script>
+  <script src="firebase-config.js"></script>
+  <script src="script.js"></script>
+  <script>
+    const ADMIN_PASSWORD = "Youssefahmed2026";
+
+    document.getElementById("loginBtn").addEventListener("click", () => {
+      const pass = document.getElementById("adminPassword").value;
+      if (pass === ADMIN_PASSWORD) {
+        document.getElementById("loginBox").style.display = "none";
+        document.getElementById("adminPanel").style.display = "block";
+        renderAdminList();
+      } else {
+        alert("كلمة المرور خاطئة");
+      }
+    });
+
+    document.getElementById("adminPassword").addEventListener("keyup", e => {
+      if (e.key === "Enter") document.getElementById("loginBtn").click();
+    });
+
+    document.getElementById("addGameBtn").addEventListener("click", async () => {
+      const title = document.getElementById("gameTitle").value.trim();
+      if (!title) { alert("اكتب اسم اللعبة"); return; }
+
+      const btn = document.getElementById("addGameBtn");
+      btn.disabled = true;
+      btn.textContent = "جاري الإضافة...";
+
+      try {
+        await addGame({
+          title,
+          description: document.getElementById("gameDesc").value.trim(),
+          category: document.getElementById("gameCategory").value,
+          genre: document.getElementById("gameGenre").value,
+          size: document.getElementById("gameSize").value.trim(),
+          cover: document.getElementById("gameCover").value.trim(),
+          mediafire: document.getElementById("gameMediafire").value.trim(),
+          mega: document.getElementById("gameMega").value.trim(),
+          torrent: document.getElementById("gameTorrent").value.trim(),
+          video: document.getElementById("gameVideo").value.trim(),
+          screenshots: document.getElementById("gameScreenshots").value.trim(),
+          minReq: document.getElementById("gameMinReq").value.trim(),
+          recReq: document.getElementById("gameRecReq").value.trim()
+        });
+
+        alert("تمت إضافة اللعبة بنجاح! هتظهر لكل الزوار.");
+        ["gameTitle","gameDesc","gameSize","gameCover","gameMediafire","gameMega","gameTorrent","gameVideo","gameScreenshots","gameMinReq","gameRecReq"]
+          .forEach(id => { const el = document.getElementById(id); if (el) el.value = ""; });
+        renderAdminList();
+      } catch (e) {
+        console.error(e);
+        alert("حصل خطأ أثناء الإضافة. تأكد من قواعد Firestore (Test mode).");
+      }
+
+      btn.disabled = false;
+      btn.textContent = "إضافة اللعبة";
+    });
+
+    async function renderAdminList() {
+      const list = document.getElementById("gamesList");
+      list.innerHTML = "<p style='color:var(--muted)'>جاري التحميل...</p>";
+      try {
+        const games = await getGames();
+        if (games.length === 0) {
+          list.innerHTML = "<p style='color:var(--muted)'>لا توجد ألعاب بعد.</p>";
+          return;
+        }
+        const labels = { weak: "خفيفة", medium: "متوسطة", strong: "قوية" };
+        const genreLabels = { action:"أكشن", horror:"رعب", adventure:"مغامرات", racing:"سباق", sports:"رياضة", strategy:"استراتيجية", rpg:"أدوار", shooter:"شوتر", openworld:"عالم مفتوح", other:"أخرى" };
+        list.innerHTML = games.map(g => `
+          <div class="admin-game-item">
+            <div>
+              <h4>${escapeHtml(g.title)}</h4>
+              <small style="color:var(--muted)">${labels[g.category] || ""} • ${genreLabels[g.genre] || ""} • ${escapeHtml(g.size || "")}</small>
+            </div>
+            <button class="btn-danger" data-id="${g.id}">حذف</button>
+          </div>
+        `).join("");
+
+        list.querySelectorAll(".btn-danger").forEach(btn => {
+          btn.addEventListener("click", async () => {
+            if (!confirm("هل تريد حذف هذه اللعبة؟")) return;
+            try {
+              await deleteGameById(btn.dataset.id);
+              renderAdminList();
+            } catch (e) {
+              alert("فشل الحذف");
+            }
+          });
+        });
+      } catch (e) {
+        list.innerHTML = "<p style='color:var(--red)'>خطأ في تحميل الألعاب</p>";
+      }
+    }
+  </script>
+</body>
+</html>

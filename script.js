@@ -1,170 +1,193 @@
-// ===== Storage =====
-const defaultGames = [];
+// ==========================================
+// 1. تهيئة Firebase & Firestore (ربط السيرفر)
+// ==========================================
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+import { 
+  getFirestore, 
+  collection, 
+  addDoc, 
+  getDocs, 
+  deleteDoc, 
+  doc 
+} from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-function getGames() {
-  const stored = localStorage.getItem("josephGames");
-  if (stored) {
-    try { return JSON.parse(stored); } catch(e) { return defaultGames; }
-  }
-  return defaultGames;
-}
+const firebaseConfig = {
+  apiKey: "AIzaSyAKwarb_o8IRGa8DCoUPFnal3zxnDnAm80",
+  authDomain: "joseph-gaming.firebaseapp.com",
+  projectId: "joseph-gaming",
+  storageBucket: "joseph-gaming.firebasestorage.app",
+  messagingSenderId: "981627883612",
+  appId: "1:981627883612:web:fe0250ab7d83649dd15699",
+  measurementId: "G-1DN80C0J2Y"
+};
 
-function saveGames(games) {
-  localStorage.setItem("josephGames", JSON.stringify(games));
-}
+// تشغيل الفايربيس وقاعدة البيانات
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const gamesCollection = collection(db, "games");
 
-// ===== Render Games =====
-function renderGames(sizeFilter = "all", genreFilter = "all", searchTerm = "") {
-  const grid = document.getElementById("gamesGrid");
-  const emptyState = document.getElementById("emptyState");
-  if (!grid) return;
-
-  let games = getGames();
-
-  // Size filter
-  if (sizeFilter !== "all") {
-    games = games.filter(g => g.category === sizeFilter);
-  }
-
-  // Genre filter
-  if (genreFilter !== "all") {
-    games = games.filter(g => g.genre === genreFilter);
-  }
-
-  // Search
-  if (searchTerm.trim()) {
-    const term = searchTerm.trim().toLowerCase();
-    games = games.filter(g =>
-      g.title.toLowerCase().includes(term) ||
-      (g.description && g.description.toLowerCase().includes(term))
-    );
-  }
-
-  if (games.length === 0) {
-    grid.innerHTML = "";
-    if (emptyState) emptyState.style.display = "block";
-    return;
-  }
-  if (emptyState) emptyState.style.display = "none";
-
-  const categoryLabels = {
-    weak: "خفيفة",
-    medium: "متوسطة",
-    strong: "قوية"
-  };
-
-  const genreLabels = {
-    action: "أكشن",
-    horror: "رعب",
-    adventure: "مغامرات",
-    racing: "سباق",
-    sports: "رياضة",
-    strategy: "استراتيجية",
-    rpg: "أدوار",
-    shooter: "شوتر",
-    openworld: "عالم مفتوح",
-    other: "أخرى"
-  };
-
-  grid.innerHTML = games.map(game => `
-    <a href="game.html?id=${game.id}" class="game-card">
-      <div class="game-image" style="${game.cover ? `background-image:url('${game.cover}');background-size:cover;background-position:center;` : ''}">
-        ${game.cover ? '' : (game.emoji || '🎮')}
-      </div>
-      <div class="game-body">
-        <h3 class="game-title">${escapeHtml(game.title)}</h3>
-        <div class="game-meta">
-          <span class="badge badge-${game.category}">${categoryLabels[game.category] || ""}</span>
-          ${game.genre ? `<span class="badge" style="background:rgba(0,212,255,.12);color:#00d4ff">${genreLabels[game.genre] || game.genre}</span>` : ""}
-          <span>${escapeHtml(game.size || "")}</span>
-        </div>
-      </div>
-    </a>
-  `).join("");
-}
-
+// ==========================================
+// 2. دالة مساعدة لتشفير النصوص (Security)
+// ==========================================
 function escapeHtml(str) {
   if (!str) return "";
   return String(str)
     .replace(/&/g, "&amp;")
     .replace(/</g, "&lt;")
     .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;");
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
 }
 
-// ===== Homepage Events =====
-document.addEventListener("DOMContentLoaded", () => {
-  if (document.getElementById("gamesGrid")) {
-    let currentSize = "all";
+// ==========================================
+// 3. جلب وحفظ الألعاب من Firebase
+// ==========================================
+
+// جلب الألعاب من السيرفر
+async function fetchGamesFromFirebase() {
+  try {
+    const querySnapshot = await getDocs(gamesCollection);
+    const games = [];
+    querySnapshot.forEach((doc) => {
+      games.push({ id: doc.id, ...doc.data() });
+    });
+    return games;
+  } catch (error) {
+    console.error("خطأ في جلب الألعاب: ", error);
+    return [];
+  }
+}
+
+// إضافة لعبة جديدة
+async function addGameToFirebase(gameData) {
+  try {
+    const docRef = await addDoc(gamesCollection, gameData);
+    return docRef.id;
+  } catch (error) {
+    console.error("خطأ في إضافة اللعبة: ", error);
+    alert("حدث خطأ أثناء إضافة اللعبة، حاول مرة أخرى.");
+  }
+}
+
+// حذف لعبة
+async function deleteGameFromFirebase(id) {
+  try {
+    await deleteDoc(doc(db, "games", id));
+  } catch (error) {
+    console.error("خطأ في حذف اللعبة: ", error);
+  }
+}
+
+// ==========================================
+// 4. تشغيل الواجهات والصفحات (UI Rendering)
+// ==========================================
+document.addEventListener("DOMContentLoaded", async () => {
+  // القائمة في الهيدر للموبايل
+  const menuBtn = document.getElementById("menuBtn");
+  const mainNav = document.getElementById("mainNav");
+  if (menuBtn && mainNav) {
+    menuBtn.addEventListener("click", () => {
+      mainNav.classList.toggle("open");
+    });
+  }
+
+  // إذا كنا في الصفحة الرئيسية (index.html)
+  const gamesGrid = document.getElementById("gamesGrid");
+  if (gamesGrid) {
+    let allGames = await fetchGamesFromFirebase();
+    let currentCategory = "all";
     let currentGenre = "all";
+    let searchQuery = "";
 
-    function updateActiveUI() {
-      // size filter buttons
-      document.querySelectorAll(".filter-btn").forEach(b => {
-        b.classList.toggle("active", b.dataset.filter === currentSize);
+    function renderGames() {
+      const emptyState = document.getElementById("emptyState");
+      
+      let filtered = allGames.filter(g => {
+        const matchCat = currentCategory === "all" || g.category === currentCategory;
+        const matchGenre = currentGenre === "all" || g.genre === currentGenre;
+        const matchSearch = !searchQuery || (g.title && g.title.toLowerCase().includes(searchQuery.toLowerCase()));
+        return matchCat && matchGenre && matchSearch;
       });
-      // size cards
-      document.querySelectorAll(".cat-card[data-cat]").forEach(c => {
-        c.classList.toggle("active-card", c.dataset.cat === currentSize);
-      });
-      // genre cards
-      document.querySelectorAll(".cat-card[data-genre]").forEach(c => {
-        c.classList.toggle("active-card", c.dataset.genre === currentGenre);
-      });
-    }
 
-    function applyFilters() {
-      updateActiveUI();
-      const q = document.getElementById("searchInput")?.value || "";
-      renderGames(currentSize, currentGenre, q);
+      if (filtered.length === 0) {
+        gamesGrid.innerHTML = "";
+        if (emptyState) emptyState.style.display = "block";
+        return;
+      }
+
+      if (emptyState) emptyState.style.display = "none";
+
+      const categoryLabels = { weak: "خفيفة", medium: "متوسطة", strong: "قوية" };
+      const genreLabels = {
+        action: "أكشن", horror: "رعب", adventure: "مغامرات", racing: "سباق",
+        sports: "رياضة", strategy: "استراتيجية", rpg: "أدوار", shooter: "شوتر",
+        openworld: "عالم مفتوح", other: "أخرى"
+      };
+
+      gamesGrid.innerHTML = filtered.map(g => {
+        const coverHtml = g.cover 
+          ? `<div class="game-image" style="background-image: url('${g.cover}')"></div>`
+          : `<div class="game-image">🎮</div>`;
+
+        return `
+          <a href="game.html?id=${g.id}" class="game-card">
+            ${coverHtml}
+            <div class="game-body">
+              <div class="game-title">${escapeHtml(g.title)}</div>
+              <div class="game-meta">
+                <span class="badge badge-${g.category}">${categoryLabels[g.category] || ""}</span>
+                ${g.genre ? `<span class="badge" style="background:rgba(0,212,255,.12);color:#00d4ff">${genreLabels[g.genre] || g.genre}</span>` : ""}
+                ${g.size ? `<span>• ${escapeHtml(g.size)}</span>` : ""}
+              </div>
+            </div>
+          </a>
+        `;
+      }).join("");
     }
 
     renderGames();
-    updateActiveUI();
 
-    // Size filter buttons (under latest games)
-    document.querySelectorAll(".filter-btn").forEach(btn => {
-      btn.addEventListener("click", () => {
-        currentSize = btn.dataset.filter;
-        applyFilters();
-      });
-    });
-
-    // Size category cards (keep genre)
-    document.querySelectorAll(".cat-card[data-cat]").forEach(card => {
-      card.addEventListener("click", () => {
-        currentSize = card.dataset.cat;
-        applyFilters();
-        document.getElementById("games")?.scrollIntoView({ behavior: "smooth" });
-      });
-    });
-
-    // Genre cards (keep size)
-    document.querySelectorAll(".cat-card[data-genre]").forEach(card => {
-      card.addEventListener("click", () => {
-        // toggle: if same genre clicked again -> reset to all
-        const g = card.dataset.genre;
-        currentGenre = (currentGenre === g) ? "all" : g;
-        applyFilters();
-        document.getElementById("games")?.scrollIntoView({ behavior: "smooth" });
-      });
-    });
-
-    // Search
-    const searchBtn = document.getElementById("searchBtn");
+    // البحث
     const searchInput = document.getElementById("searchInput");
-    if (searchBtn && searchInput) {
-      searchBtn.addEventListener("click", applyFilters);
-      searchInput.addEventListener("keyup", e => {
-        if (e.key === "Enter") applyFilters();
+    if (searchInput) {
+      searchInput.addEventListener("input", (e) => {
+        searchQuery = e.target.value.trim();
+        renderGames();
       });
     }
-  }
 
-  // Mobile menu
-  const menuBtn = document.getElementById("menuBtn");
-  const nav = document.getElementById("mainNav") || document.querySelector(".nav");
-  if (menuBtn && nav) {
-    menuBtn.addEventListener("click", () => nav.classList.toggle("open"));
+    // فلترة الأزرار
+    document.querySelectorAll(".filter-btn").forEach(btn => {
+      btn.addEventListener("click", () => {
+        document.querySelectorAll(".filter-btn").forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+        currentCategory = btn.dataset.filter;
+        renderGames();
+      });
+    });
+
+    // كروت التصنيفات
+    document.querySelectorAll(".cat-card[data-cat]").forEach(card => {
+      card.addEventListener("click", () => {
+        currentCategory = card.dataset.cat;
+        renderGames();
+        document.getElementById("games")?.scrollIntoView({ behavior: "smooth" });
+      });
+    });
+
+    // كروت الأنواع
+    document.querySelectorAll(".cat-card[data-genre]").forEach(card => {
+      card.addEventListener("click", () => {
+        currentGenre = card.dataset.genre;
+        renderGames();
+        document.getElementById("games")?.scrollIntoView({ behavior: "smooth" });
+      });
+    });
   }
 });
+
+// تصدير الدوال للاستخدام العالمي
+window.fetchGamesFromFirebase = fetchGamesFromFirebase;
+window.addGameToFirebase = addGameToFirebase;
+window.deleteGameFromFirebase = deleteGameFromFirebase;
+window.escapeHtml = escapeHtml;

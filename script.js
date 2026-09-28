@@ -1,4 +1,3 @@
-// 1. تهيئة الفايربيس وقاعدة البيانات
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
 import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
@@ -15,7 +14,6 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-// دالة جلب وعرض الألعاب
 window.loadGames = async function() {
   const gamesList = document.getElementById("games-list");
   if (!gamesList) return;
@@ -38,7 +36,6 @@ window.loadGames = async function() {
   }
 };
 
-// دالة إضافة لعبة جديدة
 window.addNewGame = async function(name, url) {
   try {
     await addDoc(collection(db, "games"), {
@@ -46,7 +43,7 @@ window.addNewGame = async function(name, url) {
       url: url,
       createdAt: new Date()
     });
-    alert("تم إضافة اللعبة بنجاح وستحفظ للأبد!");
+    alert("تم إضافة اللعبة بنجاح!");
     window.loadGames();
   } catch (e) {
     console.error("خطأ في الإضافة: ", e);

@@ -294,3 +294,39 @@ body {
   box-shadow: 0 0 0 1px var(--primary), 0 8px 24px rgba(124,92,255,.25);
   background: var(--card-hover);
 }
+
+
+/* Pagination */
+.pagination {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+  margin: 28px 0 10px;
+}
+.page-btn {
+  min-width: 42px;
+  height: 42px;
+  padding: 0 14px;
+  border-radius: 10px;
+  border: 1px solid rgba(255,255,255,.1);
+  background: var(--card);
+  color: var(--text);
+  font-family: inherit;
+  font-weight: 700;
+  cursor: pointer;
+  transition: .2s;
+}
+.page-btn:hover:not(:disabled) {
+  border-color: var(--primary);
+  color: #fff;
+}
+.page-btn.active {
+  background: var(--primary);
+  border-color: transparent;
+  color: #fff;
+}
+.page-btn:disabled {
+  opacity: .4;
+  cursor: not-allowed;
+}

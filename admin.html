@@ -6,6 +6,21 @@
   <title>لوحة التحكم - Joseph Games</title>
   <link rel="stylesheet" href="styles.css">
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    .admin-actions { display:flex; gap:8px; flex-wrap:wrap; }
+    .btn-edit {
+      background: rgba(0,212,255,.15); color:#00d4ff; border:none;
+      padding:8px 14px; border-radius:8px; font-family:inherit; font-weight:700;
+      cursor:pointer;
+    }
+    .btn-edit:hover { background: rgba(0,212,255,.28); }
+    .form-title-row { display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap; }
+    .btn-cancel {
+      background: transparent; border:1px solid rgba(255,255,255,.15);
+      color: var(--muted); padding:8px 14px; border-radius:8px;
+      font-family:inherit; font-weight:600; cursor:pointer;
+    }
+  </style>
 </head>
 <body>
   <header class="header">
@@ -33,8 +48,15 @@
 
     <div id="adminPanel" style="display:none;">
       <div class="admin-card">
-        <h1>إضافة لعبة جديدة</h1>
-        <p class="subtitle">الألعاب هتظهر لكل الزوار على أي جهاز</p>
+        <div class="form-title-row">
+          <div>
+            <h1 id="formTitle">إضافة لعبة جديدة</h1>
+            <p class="subtitle" id="formSubtitle">الألعاب هتظهر لكل الزوار على أي جهاز</p>
+          </div>
+          <button class="btn-cancel" id="cancelEditBtn" style="display:none;">إلغاء التعديل</button>
+        </div>
+
+        <input type="hidden" id="editingId" value="">
 
         <div class="form-group">
           <label>اسم اللعبة *</label>
@@ -117,7 +139,7 @@
           <textarea id="gameRecReq" placeholder="نظام التشغيل: ويندوز 11&#10;المعالج: ...&#10;الذاكرة: 16 جيجا"></textarea>
         </div>
 
-        <button class="btn-primary" id="addGameBtn">إضافة اللعبة</button>
+        <button class="btn-primary" id="saveGameBtn">إضافة اللعبة</button>
       </div>
 
       <div class="admin-list">
@@ -133,6 +155,58 @@
   <script src="script.js"></script>
   <script>
     const ADMIN_PASSWORD = "Youssefahmed2026";
+    const FIELD_IDS = ["gameTitle","gameDesc","gameSize","gameCover","gameMediafire","gameMega","gameTorrent","gameVideo","gameScreenshots","gameMinReq","gameRecReq"];
+
+    function clearForm() {
+      FIELD_IDS.forEach(id => { const el = document.getElementById(id); if (el) el.value = ""; });
+      document.getElementById("gameCategory").value = "weak";
+      document.getElementById("gameGenre").value = "action";
+      document.getElementById("editingId").value = "";
+      document.getElementById("formTitle").textContent = "إضافة لعبة جديدة";
+      document.getElementById("formSubtitle").textContent = "الألعاب هتظهر لكل الزوار على أي جهاز";
+      document.getElementById("saveGameBtn").textContent = "إضافة اللعبة";
+      document.getElementById("cancelEditBtn").style.display = "none";
+    }
+
+    function fillForm(game) {
+      document.getElementById("editingId").value = game.id || "";
+      document.getElementById("gameTitle").value = game.title || "";
+      document.getElementById("gameDesc").value = game.description || "";
+      document.getElementById("gameCategory").value = game.category || "weak";
+      document.getElementById("gameSize").value = game.size || "";
+      document.getElementById("gameGenre").value = game.genre || "other";
+      document.getElementById("gameCover").value = game.cover || "";
+      document.getElementById("gameMediafire").value = game.mediafire || "";
+      document.getElementById("gameMega").value = game.mega || "";
+      document.getElementById("gameTorrent").value = game.torrent || "";
+      document.getElementById("gameVideo").value = game.video || "";
+      document.getElementById("gameScreenshots").value = game.screenshots || "";
+      document.getElementById("gameMinReq").value = game.minReq || "";
+      document.getElementById("gameRecReq").value = game.recReq || "";
+      document.getElementById("formTitle").textContent = "تعديل اللعبة";
+      document.getElementById("formSubtitle").textContent = "عدّل البيانات ثم احفظ";
+      document.getElementById("saveGameBtn").textContent = "حفظ التعديلات";
+      document.getElementById("cancelEditBtn").style.display = "inline-block";
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    function collectForm() {
+      return {
+        title: document.getElementById("gameTitle").value.trim(),
+        description: document.getElementById("gameDesc").value.trim(),
+        category: document.getElementById("gameCategory").value,
+        genre: document.getElementById("gameGenre").value,
+        size: document.getElementById("gameSize").value.trim(),
+        cover: document.getElementById("gameCover").value.trim(),
+        mediafire: document.getElementById("gameMediafire").value.trim(),
+        mega: document.getElementById("gameMega").value.trim(),
+        torrent: document.getElementById("gameTorrent").value.trim(),
+        video: document.getElementById("gameVideo").value.trim(),
+        screenshots: document.getElementById("gameScreenshots").value.trim(),
+        minReq: document.getElementById("gameMinReq").value.trim(),
+        recReq: document.getElementById("gameRecReq").value.trim()
+      };
+    }
 
     document.getElementById("loginBtn").addEventListener("click", () => {
       const pass = document.getElementById("adminPassword").value;
@@ -149,42 +223,34 @@
       if (e.key === "Enter") document.getElementById("loginBtn").click();
     });
 
-    document.getElementById("addGameBtn").addEventListener("click", async () => {
-      const title = document.getElementById("gameTitle").value.trim();
-      if (!title) { alert("اكتب اسم اللعبة"); return; }
+    document.getElementById("cancelEditBtn").addEventListener("click", clearForm);
 
-      const btn = document.getElementById("addGameBtn");
+    document.getElementById("saveGameBtn").addEventListener("click", async () => {
+      const data = collectForm();
+      if (!data.title) { alert("اكتب اسم اللعبة"); return; }
+
+      const btn = document.getElementById("saveGameBtn");
+      const editingId = document.getElementById("editingId").value;
       btn.disabled = true;
-      btn.textContent = "جاري الإضافة...";
+      btn.textContent = editingId ? "جاري الحفظ..." : "جاري الإضافة...";
 
       try {
-        await addGame({
-          title,
-          description: document.getElementById("gameDesc").value.trim(),
-          category: document.getElementById("gameCategory").value,
-          genre: document.getElementById("gameGenre").value,
-          size: document.getElementById("gameSize").value.trim(),
-          cover: document.getElementById("gameCover").value.trim(),
-          mediafire: document.getElementById("gameMediafire").value.trim(),
-          mega: document.getElementById("gameMega").value.trim(),
-          torrent: document.getElementById("gameTorrent").value.trim(),
-          video: document.getElementById("gameVideo").value.trim(),
-          screenshots: document.getElementById("gameScreenshots").value.trim(),
-          minReq: document.getElementById("gameMinReq").value.trim(),
-          recReq: document.getElementById("gameRecReq").value.trim()
-        });
-
-        alert("تمت إضافة اللعبة بنجاح! هتظهر لكل الزوار.");
-        ["gameTitle","gameDesc","gameSize","gameCover","gameMediafire","gameMega","gameTorrent","gameVideo","gameScreenshots","gameMinReq","gameRecReq"]
-          .forEach(id => { const el = document.getElementById(id); if (el) el.value = ""; });
+        if (editingId) {
+          await updateGame(editingId, data);
+          alert("تم حفظ التعديلات بنجاح");
+        } else {
+          await addGame(data);
+          alert("تمت إضافة اللعبة بنجاح! هتظهر لكل الزوار.");
+        }
+        clearForm();
         renderAdminList();
       } catch (e) {
         console.error(e);
-        alert("حصل خطأ أثناء الإضافة. تأكد من قواعد Firestore (Test mode).");
+        alert("حصل خطأ. تأكد من قواعد Firestore.");
       }
 
       btn.disabled = false;
-      btn.textContent = "إضافة اللعبة";
+      btn.textContent = document.getElementById("editingId").value ? "حفظ التعديلات" : "إضافة اللعبة";
     });
 
     async function renderAdminList() {
@@ -204,15 +270,26 @@
               <h4>${escapeHtml(g.title)}</h4>
               <small style="color:var(--muted)">${labels[g.category] || ""} • ${genreLabels[g.genre] || ""} • ${escapeHtml(g.size || "")}</small>
             </div>
-            <button class="btn-danger" data-id="${g.id}">حذف</button>
+            <div class="admin-actions">
+              <button class="btn-edit" data-id="${g.id}">تعديل</button>
+              <button class="btn-danger" data-id="${g.id}">حذف</button>
+            </div>
           </div>
         `).join("");
+
+        list.querySelectorAll(".btn-edit").forEach(btn => {
+          btn.addEventListener("click", () => {
+            const game = games.find(x => String(x.id) === String(btn.dataset.id));
+            if (game) fillForm(game);
+          });
+        });
 
         list.querySelectorAll(".btn-danger").forEach(btn => {
           btn.addEventListener("click", async () => {
             if (!confirm("هل تريد حذف هذه اللعبة؟")) return;
             try {
               await deleteGameById(btn.dataset.id);
+              if (document.getElementById("editingId").value === btn.dataset.id) clearForm();
               renderAdminList();
             } catch (e) {
               alert("فشل الحذف");
@@ -220,7 +297,7 @@
           });
         });
       } catch (e) {
-        list.innerHTML = "<p style='color:var(--red)'>خطأ في تحميل الألعاب</p>";
+        list.innerHTML = "<p style='color:#f66'>خطأ في تحميل الألعاب</p>";
       }
     }
   </script>

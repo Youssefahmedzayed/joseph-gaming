@@ -5,7 +5,6 @@ async function getGames() {
     return snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
   } catch (e) {
     console.error("getGames error:", e);
-    // fallback without orderBy if index missing
     try {
       const snap = await db.collection("games").get();
       const games = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
@@ -25,6 +24,12 @@ async function addGame(game) {
   return ref.id;
 }
 
+async function updateGame(id, game) {
+  const data = { ...game, updatedAt: Date.now() };
+  delete data.id;
+  await db.collection("games").doc(String(id)).update(data);
+}
+
 async function deleteGameById(id) {
   await db.collection("games").doc(String(id)).delete();
 }
@@ -38,8 +43,86 @@ function escapeHtml(str) {
     .replace(/"/g, "&quot;");
 }
 
+// ===== Pagination state =====
+const GAMES_PER_PAGE = 9;
+let currentPage = 1;
+let lastFilteredGames = [];
+
+function renderPagination(total, page) {
+  let box = document.getElementById("pagination");
+  if (!box) {
+    const grid = document.getElementById("gamesGrid");
+    if (!grid) return;
+    box = document.createElement("div");
+    box.id = "pagination";
+    box.className = "pagination";
+    grid.parentNode.insertBefore(box, grid.nextSibling);
+  }
+
+  const totalPages = Math.ceil(total / GAMES_PER_PAGE);
+  if (totalPages <= 1) {
+    box.innerHTML = "";
+    box.style.display = "none";
+    return;
+  }
+  box.style.display = "flex";
+
+  let html = "";
+  html += `<button class="page-btn" data-page="prev" ${page <= 1 ? "disabled" : ""}>السابق</button>`;
+  for (let i = 1; i <= totalPages; i++) {
+    html += `<button class="page-btn ${i === page ? "active" : ""}" data-page="${i}">${i}</button>`;
+  }
+  html += `<button class="page-btn" data-page="next" ${page >= totalPages ? "disabled" : ""}>التالي</button>`;
+  box.innerHTML = html;
+
+  box.querySelectorAll(".page-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const v = btn.dataset.page;
+      const totalPagesNow = Math.ceil(lastFilteredGames.length / GAMES_PER_PAGE);
+      if (v === "prev") currentPage = Math.max(1, currentPage - 1);
+      else if (v === "next") currentPage = Math.min(totalPagesNow, currentPage + 1);
+      else currentPage = Number(v);
+      paintGamesPage();
+      document.getElementById("games")?.scrollIntoView({ behavior: "smooth" });
+    });
+  });
+}
+
+function paintGamesPage() {
+  const grid = document.getElementById("gamesGrid");
+  if (!grid) return;
+
+  const categoryLabels = { weak: "خفيفة", medium: "متوسطة", strong: "قوية" };
+  const genreLabels = {
+    action: "أكشن", horror: "رعب", adventure: "مغامرات", racing: "سباق",
+    sports: "رياضة", strategy: "استراتيجية", rpg: "أدوار", shooter: "شوتر",
+    openworld: "عالم مفتوح", other: "أخرى"
+  };
+
+  const start = (currentPage - 1) * GAMES_PER_PAGE;
+  const pageGames = lastFilteredGames.slice(start, start + GAMES_PER_PAGE);
+
+  grid.innerHTML = pageGames.map(game => `
+    <a href="game.html?id=${game.id}" class="game-card">
+      <div class="game-image" style="${game.cover ? `background-image:url('${game.cover}');background-size:cover;background-position:center;` : ''}">
+        ${game.cover ? '' : '🎮'}
+      </div>
+      <div class="game-body">
+        <h3 class="game-title">${escapeHtml(game.title)}</h3>
+        <div class="game-meta">
+          <span class="badge badge-${game.category}">${categoryLabels[game.category] || ""}</span>
+          ${game.genre ? `<span class="badge" style="background:rgba(0,212,255,.12);color:#00d4ff">${genreLabels[game.genre] || game.genre}</span>` : ""}
+          <span>${escapeHtml(game.size || "")}</span>
+        </div>
+      </div>
+    </a>
+  `).join("");
+
+  renderPagination(lastFilteredGames.length, currentPage);
+}
+
 // ===== Render Games =====
-async function renderGames(sizeFilter = "all", genreFilter = "all", searchTerm = "") {
+async function renderGames(sizeFilter = "all", genreFilter = "all", searchTerm = "", resetPage = true) {
   const grid = document.getElementById("gamesGrid");
   const emptyState = document.getElementById("emptyState");
   if (!grid) return;
@@ -62,35 +145,19 @@ async function renderGames(sizeFilter = "all", genreFilter = "all", searchTerm =
     );
   }
 
+  lastFilteredGames = games;
+  if (resetPage) currentPage = 1;
+
   if (games.length === 0) {
     grid.innerHTML = "";
     if (emptyState) emptyState.style.display = "block";
+    const box = document.getElementById("pagination");
+    if (box) { box.innerHTML = ""; box.style.display = "none"; }
     return;
   }
   if (emptyState) emptyState.style.display = "none";
 
-  const categoryLabels = { weak: "خفيفة", medium: "متوسطة", strong: "قوية" };
-  const genreLabels = {
-    action: "أكشن", horror: "رعب", adventure: "مغامرات", racing: "سباق",
-    sports: "رياضة", strategy: "استراتيجية", rpg: "أدوار", shooter: "شوتر",
-    openworld: "عالم مفتوح", other: "أخرى"
-  };
-
-  grid.innerHTML = games.map(game => `
-    <a href="game.html?id=${game.id}" class="game-card">
-      <div class="game-image" style="${game.cover ? `background-image:url('${game.cover}');background-size:cover;background-position:center;` : ''}">
-        ${game.cover ? '' : '🎮'}
-      </div>
-      <div class="game-body">
-        <h3 class="game-title">${escapeHtml(game.title)}</h3>
-        <div class="game-meta">
-          <span class="badge badge-${game.category}">${categoryLabels[game.category] || ""}</span>
-          ${game.genre ? `<span class="badge" style="background:rgba(0,212,255,.12);color:#00d4ff">${genreLabels[game.genre] || game.genre}</span>` : ""}
-          <span>${escapeHtml(game.size || "")}</span>
-        </div>
-      </div>
-    </a>
-  `).join("");
+  paintGamesPage();
 }
 
 // ===== Homepage Events =====
@@ -114,7 +181,7 @@ document.addEventListener("DOMContentLoaded", () => {
     function applyFilters() {
       updateActiveUI();
       const q = document.getElementById("searchInput")?.value || "";
-      renderGames(currentSize, currentGenre, q);
+      renderGames(currentSize, currentGenre, q, true);
     }
 
     renderGames();

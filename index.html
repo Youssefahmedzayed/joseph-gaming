@@ -27,7 +27,9 @@
 </head>
 <body>
   <div id="splash" class="splash" aria-hidden="true">
-    <div class="splash-inner">
+    <div class="splash-panel splash-left"></div>
+    <div class="splash-panel splash-right"></div>
+    <div class="splash-center">
       <img src="og-image.png" alt="Joseph Games" class="splash-logo">
       <div class="splash-bar"><span></span></div>
     </div>
@@ -175,25 +177,26 @@
   <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore-compat.js"></script>
   <script src="firebase-config.js"></script>
   <script src="script.js"></script>
-
   <script>
     (function () {
       var s = document.getElementById("splash");
       if (!s) return;
-      var done = function () {
-        s.classList.add("splash-hide");
+      var opened = false;
+      function openSplash() {
+        if (opened) return;
+        opened = true;
+        s.classList.add("splash-open");
         setTimeout(function () {
           if (s && s.parentNode) s.parentNode.removeChild(s);
           document.body.classList.add("splash-done");
-        }, 500);
-      };
-      // wait for logo paint + short modern intro
+        }, 1100);
+      }
       window.addEventListener("load", function () {
-        setTimeout(done, 1600);
+        setTimeout(openSplash, 1500);
       });
-      // safety fallback
-      setTimeout(done, 2800);
+      setTimeout(openSplash, 2800);
     })();
   </script>
+
 </body>
 </html>

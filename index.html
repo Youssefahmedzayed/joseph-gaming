@@ -2,15 +2,36 @@
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8">
+  <meta name="google-site-verification" content="b7vSphRCBnDd3geRWjfhHvEMOXPShfISpU9YWBA3xEw" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Joseph Games - تحميل ألعاب الكمبيوتر</title>
   <meta name="description" content="Joseph Games - موقع تحميل ألعاب الكمبيوتر الأصلية">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon.png">
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Joseph Games">
+  <meta property="og:title" content="Joseph Games - تحميل ألعاب الكمبيوتر">
+  <meta property="og:description" content="موقع تحميل ألعاب كمبيوتر خفيفة ومتوسطة وقوية. تحميل مباشر بروابط سريعة.">
+  <meta property="og:url" content="https://joseph-games.vercel.app/">
+  <meta property="og:image" content="https://joseph-games.vercel.app/og-image.png">
+  <meta property="og:locale" content="ar_AR">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Joseph Games - تحميل ألعاب الكمبيوتر">
+  <meta name="twitter:description" content="موقع تحميل ألعاب كمبيوتر خفيفة ومتوسطة وقوية.">
+  <meta name="twitter:image" content="https://joseph-games.vercel.app/og-image.png">
   <link rel="stylesheet" href="styles.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
 </head>
 <body>
+  <div id="splash" class="splash" aria-hidden="true">
+    <div class="splash-inner">
+      <img src="og-image.png" alt="Joseph Games" class="splash-logo">
+      <div class="splash-bar"><span></span></div>
+    </div>
+  </div>
   <header class="header">
     <div class="container header-inner">
       <a href="index.html" class="logo">
@@ -154,5 +175,25 @@
   <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore-compat.js"></script>
   <script src="firebase-config.js"></script>
   <script src="script.js"></script>
+
+  <script>
+    (function () {
+      var s = document.getElementById("splash");
+      if (!s) return;
+      var done = function () {
+        s.classList.add("splash-hide");
+        setTimeout(function () {
+          if (s && s.parentNode) s.parentNode.removeChild(s);
+          document.body.classList.add("splash-done");
+        }, 500);
+      };
+      // wait for logo paint + short modern intro
+      window.addEventListener("load", function () {
+        setTimeout(done, 1600);
+      });
+      // safety fallback
+      setTimeout(done, 2800);
+    })();
+  </script>
 </body>
 </html>

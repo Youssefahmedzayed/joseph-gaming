@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
+  <defs>
+    <linearGradient id="g" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#00d4ff"/>
+      <stop offset="100%" stop-color="#a855f7"/>
+    </linearGradient>
+  </defs>
+  <rect width="128" height="128" rx="28" fill="#0a0a12"/>
+  <!-- gamepad body -->
+  <path d="M28 58c0-12 10-22 22-22h28c12 0 22 10 22 22v12c0 14-10 24-24 24H52c-14 0-24-10-24-24V58z" fill="none" stroke="url(#g)" stroke-width="5" stroke-linejoin="round"/>
+  <!-- D-pad -->
+  <path d="M42 62h8v-8h8v8h8v8h-8v8h-8v-8h-8z" fill="url(#g)"/>
+  <!-- buttons -->
+  <circle cx="82" cy="60" r="5" fill="#a855f7"/>
+  <circle cx="92" cy="70" r="5" fill="#00d4ff"/>
+  <circle cx="82" cy="80" r="5" fill="#00d4ff"/>
+  <circle cx="72" cy="70" r="5" fill="#a855f7"/>
+</svg>
